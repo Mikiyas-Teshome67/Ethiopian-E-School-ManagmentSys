@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en" mode="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mikiyas's E-School Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">.
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #454242;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #454242;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: #333;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #555;
+        }
+        @keyframes pulse-animation {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        .message-notification {
+            animation: pulse-animation 2s infinite;
+        }
+        .module-card {
+            transition: all 0.3s ease;
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .dark .module-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #5D5CDE;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #5D5CDE;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#4F4DC4',
+                        accent: '#6C63FF',
+                        dark: {
+                            primary: '#3D3C8E',
+                            secondary: '#2F2E75',
+                            background: '#181818',
+                            card: '#222222',
+                            text: '#E0E0E0'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type='css' src='G:\Game of PC 2024 HIT\nn (3211)\sol\mm.css'>
+    </style>
+</head>
+<body class="antialiased font-sans bg-gray-100 text-gray-800 dark:bg-dark-background dark:text-dark-text min-h-screen">
+    <!-- Dark Mode Toggle -->
+    <div id="dark-mode-toggle" class="fixed top-4 right-4 z-40 p-2 rounded-full bg-white dark:bg-dark-card shadow cursor-pointer">
+        <i class="fas fa-moon dark:hidden"></i>
+        <i class="fas fa-sun hidden dark:inline"></i>
+    </div>
+
+    <!-- Loading Screens and User Authentication -->
+    <div id="loading-screen" class="fixed inset-0 flex items-center justify-center bg-white dark:bg-dark-background z-50">
+        <div class="text-center">
+            <div class="inline-block w-24 h-24 border-8 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p class="mt-4 text-xl font-semibold">Loading E-School System...</p>
+        </div>
+    </div>
+
+    <div id="login-screen" class="fixed inset-0 flex items-center justify-center bg-white dark:bg-dark-background z-40 hidden">
+        <div class="bg-white dark:bg-dark-card rounded-lg shadow-2xl p-8 w-full max-w-md">
+            <h2 class="text-3xl font-bold text-center mb-6 text-primary dark:text-white">Mikiyas's E-School Login</h2>
+            <div class="space-y-4 mb-8">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Username</label>
+                    <input type="text" class="w-full px-4 py-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Enter your username" value="demo_user">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password" class="w-full px-4 py-3 rounded-lg border dark:border-gray-700 dark:bg-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Enter your password" value="********">
+                </div>
+            </div>
+            
+            <div class="space-y-3">
+                <h3 class="font-medium text-center mb-2">Login as:</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button class="role-btn flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-primary hover:text-white dark:hover:bg-primary p-4 rounded-lg transition duration-300" data-role="admin">
+                        <i class="fas fa-user-cog text-2xl mb-2"></i>
+                        <span>Administrator</span>
+                    </button>
+                    <button class="role-btn flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-primary hover:text-white dark:hover:bg-primary p-4 rounded-lg transition duration-300" data-role="teacher">
+                        <i class="fas fa-chalkboard-teacher text-2xl mb-2"></i>
+                        <span>Teacher</span>
+                    </button>
+                    <button class="role-btn flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-primary hover:text-white dark:hover:bg-primary p-4 rounded-lg transition duration-300" data-role="student">
+                        <i class="fas fa-user-graduate text-2xl mb-2"></i>
+                        <span>Student</span>
+                    </button>
+                    <button class="role-btn flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-primary hover:text-white dark:hover:bg-primary p-4 rounded-lg transition duration-300" data-role="parent">
+                        <i class="fas fa-users text-2xl mb-2"></i>
+                        <span>Parent</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-8">
+                <button id="login-btn" class="w-full bg-primary hover:bg-secondary text-white py-3 rounded-lg font-medium transition duration-300">
+                    Log In
+                </button>
+                <div class="text-center mt-4">
+                    <a href="#" class="text-primary dark:text-blue-400 hover:underline">Forgot Password?</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" class="hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white dark:bg-dark-card shadow-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-30 custom-scrollbar overflow-y-auto">
+            <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-xl font-bold text-primary dark:text-white">Mikiyas's E-School System</h1>
+                    <button id="close-sidebar" class="md:hidden text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mt-4 flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+                        <span id="user-initials" class="text-lg font-bold">A</span>
+                    </div>
+                    <div class="ml-3">
+                        <p id="user-name" class="font-medium">Administrator</p>
+                        <p id="user-role" class="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <div id="menu-container">
+                    <!-- Menu items will be loaded here based on user role -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="main-content" class="md:ml-64 min-h-screen">
+            <!-- Top Navigation -->
+            <nav class="bg-white dark:bg-dark-card shadow-sm p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <button id="sidebar-toggle" class="md:hidden mr-3 text-gray-600 dark:text-gray-300">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h2 id="page-title" class="text-lg font-semibold">Dashboard</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="message-notification relative text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white">
+                            <i class="fas fa-envelope text-xl"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button class="relative text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-white">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">5</span>
+                        </button>
+                    </div>
+                    <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition duration-300">
+                        Logout
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <div id="content-area" class="p-6">
+                <!-- Dashboard will be loaded here based on user role -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Communication Panel -->
+    <div id="communication-panel" class="fixed right-0 top-0 h-full w-80 bg-white dark:bg-dark-card shadow-lg transform translate-x-full transition-transform duration-300 z-30 custom-scrollbar overflow-y-auto">
+        <div class="p-5 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-primary dark:text-white">Messages</h2>
+                <button id="close-communication" class="text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-4">
+            <div class="flex items-center space-x-2 mb-6">
+                <input type="text" class="flex-1 px-4 py-2 rounded-lg border dark:border-gray-700 dark:bg-gray-800 text-base focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Search messages...">
+                <button class="p-2 bg-primary text-white rounded-lg">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <div class="space-y-1 mb-6">
+                <button class="w-full flex items-center justify-between p-3 bg-primary bg-opacity-10 dark:bg-opacity-20 rounded-lg">
+                    <span>All Messages</span>
+                    <span class="bg-primary text-white text-xs rounded-full px-2 py-1">8</span>
+                </button>
+                <button class="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                    <span>Unread</span>
+                    <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1">3</span>
+                </button>
+                <button class="w-full flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
+                    <span>Important</span>
+                    <span class="bg-yellow-500 text-white text-xs rounded-full px-2 py-1">2</span>
+                </button>
+            </div>
+
+            <h3 class="font-medium mb-3">Recent Conversations</h3>
+            <div class="space-y-3 mb-6">
+                <div class="flex items-start p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg cursor-pointer">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-3">
+                        <span class="font-semibold text-blue-600 dark:text-blue-300">TS</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <p class="font-medium">Mr.Tasew</p>
+                            <p class="text-xs text-gray-500">10:23 AM</p>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Regarding the assignment due tomorrow...</p>
+                    </div>
+                </div>
+                <div class="flex items-start p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer">
+                    <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mr-3">
+                        <span class="font-semibold text-green-600 dark:text-green-300">AS</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <p class="font-medium">Mr. Ashenafi</p>
+                            <p class="text-xs text-gray-500">Yesterday</p>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Could you please share the study materials?</p>
+                    </div>
+                </div>
+                <div class="flex items-start p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer">
+                    <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-3">
+                        <span class="font-semibold text-purple-600 dark:text-purple-300">MH</span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <p class="font-medium">Mr.Mohammed</p>
+                            <p class="text-xs text-gray-500">Sep 19</p>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Staff meeting rescheduled to Friday</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="w-full bg-primary hover:bg-secondary text-white py-2 rounded-lg font-medium transition duration-300">
+                <i class="fas fa-plus mr-2"></i> New Message
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Dark Mode Detection & Toggle
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+        
+        document.getElementById('dark-mode-toggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // User Data with Role-Specific Information
+        const userData = {
+            admin: {
+                name: "Admin User",
+                initials: "AU",
+                menu: [
+                    { label: "Dashboard", icon: "fas fa-tachometer-alt", active: true },
+                    { label: "School Settings", icon: "fas fa-school", active: false },
+                    { label: "User Management", icon: "fas fa-users-cog", active: false },
+                    { label: "Module Configuration", icon: "fas fa-puzzle-piece", active: false },
+                    { label: "Staff Administration", icon: "fas fa-user-tie", active: false },
+                    { label: "Financial Management", icon: "fas fa-file-invoice-dollar", active: false },
+                    { label: "Academic Calendar", icon: "fas fa-calendar-alt", active: false },
+                    { label: "System Reports", icon: "fas fa-chart-bar", active: false },
+                    { label: "Security Settings", icon: "fas fa-shield-alt", active: false },
+                    { label: "Audit Logs", icon: "fas fa-history", active: false }
+                ],
+                dashboard: `
+                    <div class="mb-6">
+                        <h1 class="text-2xl font-bold mb-4">Administrator Dashboard</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Welcome to the E-School Management System. Here's your system overview.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-blue-100 dark:bg-blue-900">
+                                    <i class="fas fa-user-graduate text-blue-500 dark:text-blue-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Students</h3>
+                                    <p class="text-2xl font-bold">1,245</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-green-100 dark:bg-green-900">
+                                    <i class="fas fa-chalkboard-teacher text-green-500 dark:text-green-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Teachers</h3>
+                                    <p class="text-2xl font-bold">87</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-purple-100 dark:bg-purple-900">
+                                    <i class="fas fa-users text-purple-500 dark:text-purple-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Parents</h3>
+                                    <p class="text-2xl font-bold">962</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-red-100 dark:bg-red-900">
+                                    <i class="fas fa-book text-red-500 dark:text-red-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Courses</h3>
+                                    <p class="text-2xl font-bold">48</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <h3 class="text-lg font-semibold mb-4">System Usage Analytics</h3>
+                            <div class="h-64">
+                                <canvas id="usageChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <h3 class="text-lg font-semibold mb-4">Active Users by Role</h3>
+                            <div class="h-64">
+                                <canvas id="userRolesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5 col-span-1">
+                            <h3 class="text-lg font-semibold mb-4">Security Status</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span>Two-Factor Authentication</span>
+                                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Enabled</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>Data Encryption</span>
+                                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Active</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>Last Security Audit</span>
+                                    <span class="text-sm">3 days ago</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>Threat Detection</span>
+                                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">No Threats</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>Compliance Status</span>
+                                    <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Compliant</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5 col-span-2">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Recent System Activities</h3>
+                                <button class="text-primary hover:underline dark:text-blue-400 text-sm">View All</button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="rounded-full p-2 bg-blue-100 dark:bg-blue-900 mr-3">
+                                        <i class="fas fa-user-plus text-blue-500 dark:text-blue-300 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">New student registration completed</p>
+                                        <p class="text-gray-500 dark:text-gray-400 text-sm">15 minutes ago</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="rounded-full p-2 bg-green-100 dark:bg-green-900 mr-3">
+                                        <i class="fas fa-file-upload text-green-500 dark:text-green-300 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Class schedule updated for 10th Grade</p>
+                                        <p class="text-gray-500 dark:text-gray-400 text-sm">1 hour ago</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="rounded-full p-2 bg-orange-100 dark:bg-orange-900 mr-3">
+                                        <i class="fas fa-exclamation-triangle text-orange-500 dark:text-orange-300 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Failed login attempt detected</p>
+                                        <p class="text-gray-500 dark:text-gray-400 text-sm">2 hours ago</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="rounded-full p-2 bg-purple-100 dark:bg-purple-900 mr-3">
+                                        <i class="fas fa-cog text-purple-500 dark:text-purple-300 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">System configuration updated</p>
+                                        <p class="text-gray-500 dark:text-gray-400 text-sm">Yesterday at 4:30 PM</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5 mb-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-semibold">Module Configuration</h3>
+                            <button class="px-4 py-2 bg-primary hover:bg-secondary text-white rounded-lg transition duration-300">
+                                Add Module
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="module-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar-check text-primary dark:text-blue-400 text-xl mr-3"></i>
+                                        <h4 class="font-semibold">Attendance Management</h4>
+                                    </div>
+                                    <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                        <input type="checkbox" name="toggle" id="toggle-attendance" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/>
+                                        <label for="toggle-attendance" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Track student attendance with automated reports and notifications.</p>
+                                <div class="text-right">
+                                    <button class="text-primary hover:underline dark:text-blue-400 text-sm">Configure</button>
+                                </div>
+                            </div>
+                            <div class="module-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-chart-line text-green-500 dark:text-green-400 text-xl mr-3"></i>
+                                        <h4 class="font-semibold">Grade Management</h4>
+                                    </div>
+                                    <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                        <input type="checkbox" name="toggle" id="toggle-grades" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/>
+                                        <label for="toggle-grades" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Manage and analyze student grades with customizable grading scales.</p>
+                                <div class="text-right">
+                                    <button class="text-primary hover:underline dark:text-blue-400 text-sm">Configure</button>
+                                </div>
+                            </div>
+                            <div class="module-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-book-open text-purple-500 dark:text-purple-400 text-xl mr-3"></i>
+                                        <h4 class="font-semibold">Curriculum Builder</h4>
+                                    </div>
+                                    <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                        <input type="checkbox" name="toggle" id="toggle-curriculum" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/>
+                                        <label for="toggle-curriculum" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                    </div>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Design and manage curriculum with learning objectives and resources.</p>
+                                <div class="text-right">
+                                    <button class="text-primary hover:underline dark:text-blue-400 text-sm">Configure</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            teacher: {
+                name: "Biritu Kasew",
+                initials: "BK",
+                menu: [
+                    { label: "Dashboard", icon: "fas fa-tachometer-alt", active: true },
+                    { label: "My Classes", icon: "fas fa-chalkboard", active: false },
+                    { label: "Attendance", icon: "fas fa-clipboard-check", active: false },
+                    { label: "Grade Book", icon: "fas fa-book", active: false },
+                    { label: "Assignments", icon: "fas fa-tasks", active: false },
+                    { label: "Lesson Plans", icon: "fas fa-clipboard-list", active: false },
+                    { label: "Student Reports", icon: "fas fa-chart-line", active: false },
+                    { label: "Calendar", icon: "fas fa-calendar-alt", active: false },
+                    { label: "Communication", icon: "fas fa-comments", active: false },
+                    { label: "Resources", icon: "fas fa-folder-open", active: false }
+                ],
+                dashboard: `
+                    <div class="mb-6">
+                        <h1 class="text-2xl font-bold mb-4">Teacher Dashboard</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Welcome back, Biritu Kasew ! Here's your overview for today.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-blue-100 dark:bg-blue-900">
+                                    <i class="fas fa-user-graduate text-blue-500 dark:text-blue-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Students</h3>
+                                    <p class="text-2xl font-bold">138</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-green-100 dark:bg-green-900">
+                                    <i class="fas fa-chalkboard text-green-500 dark:text-green-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Classes</h3>
+                                    <p class="text-2xl font-bold">5</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-orange-100 dark:bg-orange-900">
+                                    <i class="fas fa-tasks text-orange-500 dark:text-orange-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Assignments</h3>
+                                    <p class="text-2xl font-bold">12</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-red-100 dark:bg-red-900">
+                                    <i class="fas fa-exclamation-circle text-red-500 dark:text-red-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Pending</h3>
+                                    <p class="text-2xl font-bold">8</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Today's Schedule</h3>
+                                <span class="text-gray-500 dark:text-gray-400">Monday, September 20</span>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-lg font-bold text-blue-500 dark:text-blue-300">8:00</p>
+                                        <p class="text-xs text-blue-500 dark:text-blue-300">9:30</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Grade 10th Physics </p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Room 302 • 10th Grade</p>
+                                    </div>
+                                </div>
+                                <div class="flex p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-lg font-bold text-green-500 dark:text-green-300">10:00</p>
+                                        <p class="text-xs text-green-500 dark:text-green-300">11:30</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Grade 11th Mathematics</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Room 201 • 11th Grade</p>
+                                    </div>
+                                </div>
+                                <div class="flex p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-lg font-bold text-yellow-500 dark:text-yellow-300">1:00</p>
+                                        <p class="text-xs text-yellow-500 dark:text-yellow-300">2:30</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Department Meeting</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Conference Room • Staff</p>
+                                    </div>
+                                </div>
+                                <div class="flex p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-lg font-bold text-purple-500 dark:text-purple-300">3:00</p>
+                                        <p class="text-xs text-purple-500 dark:text-purple-300">4:30</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Science Club</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Lab 104 • Extracurricular</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <h3 class="text-lg font-semibold mb-4">Student Performance</h3>
+                            <div class="h-64">
+                                <canvas id="studentPerformanceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="col-span-2 bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Pending Assignments</h3>
+                                <button class="text-primary hover:underline dark:text-blue-400 text-sm">View All</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full">
+                                    <thead>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th class="text-left pb-3 font-semibold">Assignment</th>
+                                            <th class="text-left pb-3 font-semibold">Class</th>
+                                            <th class="text-left pb-3 font-semibold">Due Date</th>
+                                            <th class="text-left pb-3 font-semibold">Status</th>
+                                            <th class="text-left pb-3 font-semibold">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <td class="py-3">Physics Quiz #3</td>
+                                            <td class="py-3">Grade 10 Physics </td>
+                                            <td class="py-3">Sep 22, 2023</td>
+                                            <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">To Grade 10</span></td>
+                                            <td class="py-3"><button class="text-primary hover:underline dark:text-blue-400">Grade 10</button></td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <td class="py-3">Preparation Of Math Problem Set </td>
+                                            <td class="py-3">Grade 12 Mathematics</td>
+                                            <td class="py-3">Sep 21, 2023</td>
+                                            <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">To Grade</span></td>
+                                            <td class="py-3"><button class="text-primary hover:underline dark:text-blue-400">Grade 12 </button></td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <td class="py-3">Physics Labratory Report</td>
+                                            <td class="py-3">Grade 11 Physics </td>
+                                            <td class="py-3">Sep 18, 2023</td>
+                                            <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Overdue</span></td>
+                                            <td class="py-3"><button class="text-primary hover:underline dark:text-blue-400">Grade 11 </button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <h3 class="text-lg font-semibold mb-4">Messages</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-start pb-3 border-b dark:border-gray-700">
+                                    <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mr-3">
+                                        <span class="font-semibold text-green-600 dark:text-green-300">AE</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Abebe Endashew (Parent)</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Regarding Eyob's absence yesterday...</p>
+                                        <p class="text-gray-500 dark:text-gray-500 text-xs mt-1">Today, 10:23 AM</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start pb-3 border-b dark:border-gray-700">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-3">
+                                        <span class="font-semibold text-blue-600 dark:text-blue-300">ED</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Director Endalkachew </p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Please submit your quarterly reports by...</p>
+                                        <p class="text-gray-500 dark:text-gray-500 text-xs mt-1">Yesterday, 4:56 PM</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-3">
+                                        <span class="font-semibold text-purple-600 dark:text-purple-300">MT</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium"> Mikiyas Teshome (Student)</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">I have a question about the homework...</p>
+                                        <p class="text-gray-500 dark:text-gray-500 text-xs mt-1">Sep 19, 2:30 PM</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-center">
+                                <button class="text-primary hover:underline dark:text-blue-400">View All Messages</button>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            student: {
+                name: " Alazar Wendu ",
+                initials: "AC",
+                menu: [
+                    { label: "Dashboard", icon: "fas fa-tachometer-alt", active: true },
+                    { label: "My Courses", icon: "fas fa-book", active: false },
+                    { label: "Assignments", icon: "fas fa-tasks", active: false },
+                    { label: "Grades", icon: "fas fa-chart-line", active: false },
+                    { label: "Attendance", icon: "fas fa-clipboard-check", active: false },
+                    { label: "Schedule", icon: "fas fa-calendar-alt", active: false },
+                    { label: "Resources", icon: "fas fa-folder-open", active: false },
+                    { label: "Messages", icon: "fas fa-comments", active: false },
+                    { label: "Study Groups", icon: "fas fa-users", active: false },
+                    { label: "Settings", icon: "fas fa-cog", active: false }
+                ],
+                dashboard: `
+                    <div class="mb-6">
+                        <h1 class="text-2xl font-bold mb-4">Student Dashboard</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Welcome, Alazar! Here's your academic overview.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-blue-100 dark:bg-blue-900">
+                                    <i class="fas fa-book text-blue-500 dark:text-blue-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Courses</h3>
+                                    <p class="text-2xl font-bold">6</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-green-100 dark:bg-green-900">
+                                    <i class="fas fa-tasks text-green-500 dark:text-green-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Assignments</h3>
+                                    <p class="text-2xl font-bold">12</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-purple-100 dark:bg-purple-900">
+                                    <i class="fas fa-check-circle text-purple-500 dark:text-purple-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Completed</h3>
+                                    <p class="text-2xl font-bold">8</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex items-center">
+                                <div class="rounded-full p-3 bg-red-100 dark:bg-red-900">
+                                    <i class="fas fa-exclamation-circle text-red-500 dark:text-red-300"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Due Soon</h3>
+                                    <p class="text-2xl font-bold">4</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Your Schedule Today</h3>
+                                <span class="text-gray-500 dark:text-gray-400">Monday, September 20</span>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-lg font-bold text-blue-500 dark:text-blue-300">8:00</p>
+                                        <p class="text-xs text-blue-500 dark:text-blue-300">9:30</p>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">Grade 9 Physics </p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Room 302 • Mr. Endashew</p>
+                                    </div>
+                                    <div class="self-center">
+                                        <button class="text-primary hover:underline dark:text-blue-400 text-sm">View</button>
+                                    </div>
+                                </div>
+                                <div class="flex p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-lg font-bold text-green-500 dark:text-green-300">10:00</p>
+                                        <p class="text-xs text-green-500 dark:text-green-300">11:30</p>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">Grade 10 Mathematics</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Room 201 • Mr. Mekuriya </p>
+                                    </div>
+                                    <div class="self-center">
+                                        <button class="text-primary hover:underline dark:text-blue-400 text-sm">View</button>
+                                    </div>
+                                </div>
+                                <div class="flex p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-lg font-bold text-yellow-500 dark:text-yellow-300">1:00</p>
+                                        <p class="text-xs text-yellow-500 dark:text-yellow-300">2:30</p>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">English Speaking Skill</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Room 105 • Mrs. Eshubalew</p>
+                                    </div>
+                                    <div class="self-center">
+                                        <button class="text-primary hover:underline dark:text-blue-400 text-sm">View</button>
+                                    </div>
+                                </div>
+                                <div class="flex p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-lg font-bold text-purple-500 dark:text-purple-300">3:00</p>
+                                        <p class="text-xs text-purple-500 dark:text-purple-300">4:30</p>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium">Chemistry Laboratory Exp. About : Electric Conductivity of Ionic And Covalent Bond For Grade 9.</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Laboratory 203 • Mr. Zinabu </p>
+                                    </div>
+                                    <div class="self-center">
+                                        <button class="text-primary hover:underline dark:text-blue-400 text-sm">View</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <h3 class="text-lg font-semibold mb-4">Your Performance</h3>
+                            <div class="h-64">
+                                <canvas id="gradesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="col-span-2 bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Upcoming Assignments</h3>
+                                <button class="text-primary hover:underline dark:text-blue-400 text-sm">View All</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full">
+                                    <thead>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <th class="text-left pb-3 font-semibold">Assignment</th>
+                                            <th class="text-left pb-3 font-semibold">Course</th>
+                                            <th class="text-left pb-3 font-semibold">Due Date</th>
+                                            <th class="text-left pb-3 font-semibold">Status</th>
+                                            <th class="text-left pb-3 font-semibold">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <td class="py-3">Physics Laboratory Report</td>
+                                            <td class="py-3">Grade 10 Physics Laboratory Report </td>
+                                            <td class="py-3">Sep 22, 2023</td>
+                                            <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">In Progress</span></td>
+                                            <td class="py-3"><button class="text-primary hover:underline dark:text-blue-400">Work</button></td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <td class="py-3">Grade 12 Preparation of Math Problem Set</td>
+                                            <td class="py-3">Grade 12 Mathematics</td>
+                                            <td class="py-3">Sep 21, 2023</td>
+                                            <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Not Started</span></td>
+                                            <td class="py-3"><button class="text-primary hover:underline dark:text-blue-400">Start</button></td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <td class="py-3">Essay Draft</td>
+                                            <td class="py-3">Direct Speech And Indirect Speech </td>
+                                            <td class="py-3">Sep 25, 2023</td>
+                                            <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Started</span></td>
+                                            <td class="py-3"><button class="text-primary hover:underline dark:text-blue-400">Continue</button></td>
+                                        </tr>
+                                        <tr class="border-b dark:border-gray-700">
+                                            <td class="py-3">Grade 9 Chemistry Quiz</td>
+                                            <td class="py-3">Chemistry</td>
+                                            <td class="py-3">Sep 23, 2023</td>
+                                            <td class="py-3"><span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Not Started</span></td>
+                                            <td class="py-3"><button class="text-primary hover:underline dark:text-blue-400">Study</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <h3 class="text-lg font-semibold mb-4">Announcements</h3>
+                            <div class="space-y-4">
+                                <div class="pb-3 border-b dark:border-gray-700">
+                                    <div class="flex justify-between mb-1">
+                                        <p class="font-medium">School Assembly</p>
+                                        <p class="text-xs text-gray-500">Today</p>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Assembly on Thursday at 10 AM in the auditorium. Attendance mandatory.</p>
+                                </div>
+                                <div class="pb-3 border-b dark:border-gray-700">
+                                    <div class="flex justify-between mb-1">
+                                        <p class="font-medium">National Math Competition By MYSOROBAN. </p>
+                                        <p class="text-xs text-gray-500">Yesterday</p>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Register for the Math Olympiad by Friday if interested.</p>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <p class="font-medium">Term Schedule</p>
+                                        <p class="text-xs text-gray-500">Sep 18</p>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Updated term schedule is now available in the portal.</p>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-center">
+                                <button class="text-primary hover:underline dark:text-blue-400">View All Announcements</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                        <h3 class="text-lg font-semibold mb-4">Learning Resources</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="module-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <div class="flex items-center mb-3">
+                                    <i class="fas fa-video text-red-500 dark:text-red-400 text-xl mr-3"></i>
+                                    <h4 class="font-semibold">Video Tutorials</h4>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Access video tutorials for all your courses.</p>
+                                <div class="text-right">
+                                    <button class="text-primary hover:underline dark:text-blue-400 text-sm">Browse</button>
+                                </div>
+                            </div>
+                            <div class="module-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <div class="flex items-center mb-3">
+                                    <i class="fas fa-file-pdf text-orange-500 dark:text-orange-400 text-xl mr-3"></i>
+                                    <h4 class="font-semibold">E-Books</h4>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Digital textbooks and supplementary reading materials.</p>
+                                <div class="text-right">
+                                    <button class="text-primary hover:underline dark:text-blue-400 text-sm">Browse</button>
+                                </div>
+                            </div>
+                            <div class="module-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <div class="flex items-center mb-3">
+                                    <i class="fas fa-question-circle text-green-500 dark:text-green-400 text-xl mr-3"></i>
+                                    <h4 class="font-semibold">Practice Quizzes</h4>
+                                </div>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Self-assessment quizzes for test preparation.</p>
+                                <div class="text-right">
+                                    <button class="text-primary hover:underline dark:text-blue-400 text-sm">Start</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            parent: {
+                name: " Teshome Jemal ",
+                initials: "TJ",
+                menu: [
+                    { label: "Dashboard", icon: "fas fa-tachometer-alt", active: true },
+                    { label: "My Children", icon: "fas fa-user-graduate", active: false },
+                    { label: "Attendance", icon: "fas fa-clipboard-check", active: false },
+                    { label: "Grades & Progress", icon: "fas fa-chart-line", active: false },
+                    { label: "Assignments", icon: "fas fa-tasks", active: false },
+                    { label: "Calendar", icon: "fas fa-calendar-alt", active: false },
+                    { label: "Behavior", icon: "fas fa-clipboard-list", active: false },
+                    { label: "Messages", icon: "fas fa-comments", active: false },
+                    { label: "Payments", icon: "fas fa-credit-card", active: false },
+                    { label: "Settings", icon: "fas fa-cog", active: false }
+                ],
+                dashboard: `
+                    <div class="mb-6">
+                        <h1 class="text-2xl font-bold mb-4">Parent Dashboard</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Welcome, Teshome Jemal ! Here's an overview of your children's academic progress.</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5 mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-4">
+                                <span class="font-semibold text-blue-600 dark:text-blue-300">EW</span>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold">Mikiyas Teshome</h3>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm">Grade 10 • ID: 2023-0456</p>
+                            </div>
+                            <button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg transition duration-300">
+                                View Details
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                <div class="flex items-center mb-3">
+                                    <i class="fas fa-chart-line text-green-500 dark:text-green-400 text-xl mr-3"></i>
+                                    <h4 class="font-semibold">Academic Progress</h4>
+                                </div>
+                                <div class="flex items-end">
+                                    <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mr-3">
+                                        <span class="font-bold text-green-600 dark:text-green-300 text-xl">A+</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Rank: 1</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Average Mark: 97.42% </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                <div class="flex items-center mb-3">
+                                    <i class="fas fa-clipboard-check text-blue-500 dark:text-blue-400 text-xl mr-3"></i>
+                                    <h4 class="font-semibold">Attendance</h4>
+                                </div>
+                                <div class="flex items-end">
+                                    <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-3">
+                                        <span class="font-bold text-blue-600 dark:text-blue-300 text-xl">98%</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Present: 47 days</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Absent: 1 day</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                <div class="flex items-center mb-3">
+                                    <i class="fas fa-tasks text-purple-500 dark:text-purple-400 text-xl mr-3"></i>
+                                    <h4 class="font-semibold">Assignments</h4>
+                                </div>
+                                <div class="flex items-end">
+                                    <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-3">
+                                        <span class="font-bold text-purple-600 dark:text-purple-300 text-xl">5</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Due this week</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">2 completed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5 mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mr-4">
+                                <span class="font-semibold text-green-600 dark:text-green-300">GA</span>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold"> Yabsira Teshome  </h3>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm">Grade 11 • ID: 2023-0789</p>
+                            </div>
+                            <button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg transition duration-300">
+                                View Details
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                <div class="flex items-center mb-3">
+                                    <i class="fas fa-chart-line text-green-500 dark:text-green-400 text-xl mr-3"></i>
+                                    <h4 class="font-semibold">Academic Progress</h4>
+                                </div>
+                                <div class="flex items-end">
+                                    <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mr-3">
+                                        <span class="font-bold text-green-600 dark:text-green-300 text-xl">B+</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Rank: 7 / 54 </p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Average Mark : 89.87 </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                <div class="flex items-center mb-3">
+                                    <i class="fas fa-clipboard-check text-blue-500 dark:text-blue-400 text-xl mr-3"></i>
+                                    <h4 class="font-semibold">Attendance</h4>
+                                </div>
+                                <div class="flex items-end">
+                                    <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-3">
+                                        <span class="font-bold text-blue-600 dark:text-blue-300 text-xl">95%</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Present: 45 days</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Absent: 3 days</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                <div class="flex items-center mb-3">
+                                    <i class="fas fa-tasks text-purple-500 dark:text-purple-400 text-xl mr-3"></i>
+                                    <h4 class="font-semibold">Assignments</h4>
+                                </div>
+                                <div class="flex items-end">
+                                    <div class="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-3">
+                                        <span class="font-bold text-purple-600 dark:text-purple-300 text-xl">7</span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">Due this week</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">3 completed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Upcoming Events</h3>
+                                <button class="text-primary hover:underline dark:text-blue-400 text-sm">View Calendar</button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-md font-bold text-blue-500 dark:text-blue-300">SEP</p>
+                                        <p class="text-xl font-bold text-blue-500 dark:text-blue-300">25</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">Parent-Teacher Conference</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">4:00 PM - 7:00 PM • Main Building Of Addis Ketema General Secondary School.</p>
+                                    </div>
+                                </div>
+                                <div class="flex p-3 bg-green-50 dark:bg-green-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-md font-bold text-green-500 dark:text-green-300">OCT</p>
+                                        <p class="text-xl font-bold text-green-500 dark:text-green-300">05</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium"> Sport </p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">10:00 AM - 3:00 PM • HPE [HEALTH AND PHYSICAL EDUCATION ] practical day. </p>
+                                    </div>
+                                </div>
+                                <div class="flex p-3 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                                    <div class="text-center mr-4">
+                                        <p class="text-md font-bold text-purple-500 dark:text-purple-300">OCT</p>
+                                        <p class="text-xl font-bold text-purple-500 dark:text-purple-300">15</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">School Holiday</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">No classes • Teacher Development Day</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <h3 class="text-lg font-semibold mb-4">Financial Summary</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <div>
+                                        <p class="font-medium">Development Fee </p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Due: Oct 10, 2023</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-semibold">500.00 birr</p>
+                                        <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Paid</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <div>
+                                        <p class="font-medium">Addis Ababa Science Museum</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Due: Sep 30, 2023</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-semibold"> 450.00birr </p>
+                                        <span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pending</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <div>
+                                        <p class="font-medium">Addis Ketema School Supplies Fee</p>
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm">Due: Sep 15, 2023</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-semibold"> 120.00birr </p>
+                                        <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Paid</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-center">
+                                <button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg transition duration-300">
+                                    Make Payment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="col-span-2 bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Recent Communications</h3>
+                                <button class="text-primary hover:underline dark:text-blue-400 text-sm">View All</button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-start p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-4">
+                                        <span class="font-semibold text-blue-600 dark:text-blue-300">WS</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between mb-1">
+                                            <p class="font-medium">Ms. Wendesen (Physics Teacher)</p>
+                                            <p class="text-xs text-gray-500">Today, 10:23 AM</p>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400"> Mikiyas has been doing exceptionally well in the physics practical sessions. She shows great aptitude for the subject.</p>
+                                        <div class="mt-2">
+                                            <button class="text-primary hover:underline dark:text-blue-400 text-sm">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                    <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mr-4">
+                                        <span class="font-semibold text-green-600 dark:text-green-300">MK</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between mb-1">
+                                            <p class="font-medium">Mr. Mekuriya (Math Teacher)</p>
+                                            <p class="text-xs text-gray-500">Yesterday, 2:45 PM</p>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400"> Geremew needs to focus more during math classes. He has potential but gets distracted easily. Please discuss this with him.</p>
+                                        <div class="mt-2">
+                                            <button class="text-primary hover:underline dark:text-blue-400 text-sm">Reply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-dark-card rounded-lg shadow p-5">
+                            <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+                            <div class="space-y-3">
+                                <button class="w-full flex items-center p-3 bg-primary bg-opacity-10 dark:bg-opacity-20 hover:bg-opacity-20 dark:hover:bg-opacity-30 rounded-lg transition duration-300">
+                                    <i class="fas fa-file-alt text-primary dark:text-blue-400 mr-3"></i>
+                                    <span>Request Documents</span>
+                                </button>
+                                <button class="w-full flex items-center p-3 bg-primary bg-opacity-10 dark:bg-opacity-20 hover:bg-opacity-20 dark:hover:bg-opacity-30 rounded-lg transition duration-300">
+                                    <i class="fas fa-envelope text-primary dark:text-blue-400 mr-3"></i>
+                                    <span>Message Teacher</span>
+                                </button>
+                                <button class="w-full flex items-center p-3 bg-primary bg-opacity-10 dark:bg-opacity-20 hover:bg-opacity-20 dark:hover:bg-opacity-30 rounded-lg transition duration-300">
+                                    <i class="fas fa-calendar-plus text-primary dark:text-blue-400 mr-3"></i>
+                                    <span>Schedule Meeting</span>
+                                </button>
+                                <button class="w-full flex items-center p-3 bg-primary bg-opacity-10 dark:bg-opacity-20 hover:bg-opacity-20 dark:hover:bg-opacity-30 rounded-lg transition duration-300">
+                                    <i class="fas fa-exclamation-triangle text-primary dark:text-blue-400 mr-3"></i>
+                                    <span>Report Absence</span>
+                                </button>
+                                <button class="w-full flex items-center p-3 bg-primary bg-opacity-10 dark:bg-opacity-20 hover:bg-opacity-20 dark:hover:bg-opacity-30 rounded-lg transition duration-300">
+                                    <i class="fas fa-credit-card text-primary dark:text-blue-400 mr-3"></i>
+                                    <span>View Payment History</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // Event Listeners and App Initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+            }, 1500);
+
+            // Login functionality
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.querySelectorAll('.role-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('bg-primary', 'text-white'));
+                    this.classList.add('bg-primary', 'text-white');
+                });
+            });
+
+            // Sidebar toggle on mobile
+            document.getElementById('sidebar-toggle').addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('-translate-x-full');
+            });
+
+            document.getElementById('close-sidebar').addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.add('-translate-x-full');
+            });
+
+            // Communication panel toggle
+            document.querySelector('.message-notification').addEventListener('click', function() {
+                const panel = document.getElementById('communication-panel');
+                panel.classList.toggle('translate-x-full');
+            });
+
+            document.getElementById('close-communication').addEventListener('click', function() {
+                const panel = document.getElementById('communication-panel');
+                panel.classList.add('translate-x-full');
+            });
+
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                document.getElementById('app').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+
+                // Reset any selected role button
+                document.querySelectorAll('.role-btn').forEach(btn => {
+                    btn.classList.remove('bg-primary', 'text-white');
+                });
+            });
+
+            // Module toggle functionality
+            document.querySelectorAll('.toggle-checkbox').forEach(toggle => {
+                toggle.addEventListener('change', function() {
+                    const card = this.closest('.module-card');
+                    if (this.checked) {
+                        card.classList.remove('opacity-50');
+                    } else {
+                        card.classList.add('opacity-50');
+                    }
+                });
+            });
+        });
+
+        function login() {
+            let selectedRole = 'admin';
+            const roleButtons = document.querySelectorAll('.role-btn');
+            
+            roleButtons.forEach(btn => {
+                if (btn.classList.contains('bg-primary')) {
+                    selectedRole = btn.getAttribute('data-role');
+                }
+            });
+
+            if (!selectedRole) {
+                alert('Please select a role to continue');
+                return;
+            }
+
+            const user = userData[selectedRole];
+            
+            // Update user info in sidebar
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-role').textContent = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
+            document.getElementById('user-initials').textContent = user.initials;
+
+            // Load menu items
+            const menuContainer = document.getElementById('menu-container');
+            menuContainer.innerHTML = '';
+            
+            user.menu.forEach(item => {
+                const menuItem = document.createElement('button');
+                menuItem.className = `w-full flex items-center p-3 mb-2 rounded-lg transition-colors duration-200 ${item.active ? 'bg-primary text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`;
+                menuItem.innerHTML = `
+                    <i class="${item.icon} w-5 text-center"></i>
+                    <span class="ml-3">${item.label}</span>
+                `;
+                menuItem.addEventListener('click', function() {
+                    document.querySelectorAll('#menu-container button').forEach(btn => {
+                        btn.classList.remove('bg-primary', 'text-white');
+                        btn.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-800');
+                    });
+                    this.classList.add('bg-primary', 'text-white');
+                    this.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-800');
+                    
+                    // Update page title
+                    document.getElementById('page-title').textContent = item.label;
+                    
+                    // On mobile, close sidebar after selection
+                    if (window.innerWidth < 768) {
+                        document.getElementById('sidebar').classList.add('-translate-x-full');
+                    }
+                });
+                menuContainer.appendChild(menuItem);
+            });
+
+            // Load dashboard content
+            document.getElementById('content-area').innerHTML = user.dashboard;
+
+            // Show the app
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+
+            // Initialize charts after dashboard content is loaded
+            initializeCharts(selectedRole);
+        }
+
+        function initializeCharts(role) {
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const textColor = isDarkMode ? '#E0E0E0' : '#333333';
+            const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+            
+            Chart.defaults.color = textColor;
+            Chart.defaults.borderColor = gridColor;
+
+            // Admin Charts
+            if (role === 'admin') {
+                // System Usage Chart
+                const usageCtx = document.getElementById('usageChart');
+                if (usageCtx) {
+                    new Chart(usageCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                            datasets: [{
+                                label: 'Active Users',
+                                data: [1200, 1350, 1250, 1420, 1550, 1690, 1820, 1950, 2100],
+                                borderColor: '#5D5CDE',
+                                backgroundColor: 'rgba(93, 92, 222, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                }
+
+                // User Roles Chart
+                const rolesCtx = document.getElementById('userRolesChart');
+                if (rolesCtx) {
+                    new Chart(rolesCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Students', 'Teachers', 'Parents', 'Administrators'],
+                            datasets: [{
+                                data: [1245, 87, 962, 15],
+                                backgroundColor: [
+                                    '#5D5CDE',
+                                    '#4CAF50',
+                                    '#FF9800',
+                                    '#F44336'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Teacher Charts
+            if (role === 'teacher') {
+                // Student Performance Chart
+                const perfCtx = document.getElementById('studentPerformanceChart');
+                if (perfCtx) {
+                    new Chart(perfCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: [' Physics ', ' Mathimatics ', ' Chemistry ', ' English ', ' History '],
+                            datasets: [{
+                                label: 'Class Average',
+                                data: [78, 82, 76, 88, 84],
+                                backgroundColor: '#5D5CDE',
+                                borderRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Student Charts
+            if (role === 'student') {
+                // Grades Chart
+                const gradesCtx = document.getElementById('gradesChart');
+                if (gradesCtx) {
+                    new Chart(gradesCtx, {
+                        type: 'radar',
+                        data: {
+                            labels: ['Math', 'Biology','Chemistry', 'English', 'History', 'Geography', 'Physical Ed'],
+                            datasets: [{
+                                label: 'Your Grades',
+                                data: [90, 85, 90, 78, 82, 95, 88],
+                                backgroundColor: 'rgba(93, 92, 222, 0.2)',
+                                borderColor: '#5D5CDE',
+                                pointBackgroundColor: '#5D5CDE',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: '#5D5CDE'
+                            }, {
+                                label: 'Class Average',
+                                data: [75, 78, 72, 79, 85, 80],
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                pointBackgroundColor: 'rgb(255, 99, 132)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgb(255, 99, 132)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    angleLines: {
+                                        color: gridColor
+                                    },
+                                    grid: {
+                                        color: gridColor
+                                    },
+                                    suggestedMin: 50,
+                                    suggestedMax: 100
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+    <script src='script.js'></script>
+</body>
+</html>
